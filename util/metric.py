@@ -38,6 +38,7 @@ class Evaluator(object):
                 'mF1_max_sp_max',
                 'mF1_px_0.2_0.8_0.1', 'mAcc_px_0.2_0.8_0.1', 'mIoU_px_0.2_0.8_0.1',
                 'mF1_max_px', 'mIoU_max_px',
+                "F1_max_sp", "F1_max_px"
             ]
         else:
             self.metrics = metrics
@@ -137,13 +138,22 @@ class Evaluator(object):
                 best_f1_score_index = np.argmax(f1_scores[np.isfinite(f1_scores)])
                 best_threshold = thresholds[best_f1_score_index]
                 metric_results[metric] = best_f1_score
-            # elif metric.startswith('F1_max_px'):
-            #     precisions, recalls, thresholds = precision_recall_curve(gt_px.ravel(), pr_px.ravel())
-            #     f1_scores = (2 * precisions * recalls) / (precisions + recalls)
-            #     best_f1_score = np.max(f1_scores[np.isfinite(f1_scores)])
-            #     best_f1_score_index = np.argmax(f1_scores[np.isfinite(f1_scores)])
-            #     best_threshold = thresholds[best_f1_score_index]
-            #     metric_results[metric] = best_f1_score
+
+            elif metric.startswith('F1_max_sp'):
+                precisions, recalls, thresholds = precision_recall_curve(gt_sp.ravel(), pr_sp.ravel())
+                f1_scores = (2 * precisions * recalls) / (precisions + recalls)
+                best_f1_score = np.max(f1_scores[np.isfinite(f1_scores)])
+                best_f1_score_index = np.argmax(f1_scores[np.isfinite(f1_scores)])
+                best_threshold = thresholds[best_f1_score_index]
+                metric_results[metric] = best_f1_score
+
+            elif metric.startswith('F1_max_px'):
+                precisions, recalls, thresholds = precision_recall_curve(gt_px.ravel(), pr_px.ravel())
+                f1_scores = (2 * precisions * recalls) / (precisions + recalls)
+                best_f1_score = np.max(f1_scores[np.isfinite(f1_scores)])
+                best_f1_score_index = np.argmax(f1_scores[np.isfinite(f1_scores)])
+                best_threshold = thresholds[best_f1_score_index]
+                metric_results[metric] = best_f1_score
             elif metric.startswith('mF1_px') or metric.startswith('mDice_px') or metric.startswith('mAcc_px') or metric.startswith('mIoU_px'):  # example: F1_sp_0.3_0.8
                 # F1_px equals Dice_px
                 coms = metric.split('_')
