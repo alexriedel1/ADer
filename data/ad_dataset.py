@@ -17,6 +17,8 @@ import torch
 import cv2
 import math
 from torchvision.tv_tensors import Mask
+from torchvision.transforms.v2.functional import to_dtype, to_image
+
 
 import warnings
 warnings.filterwarnings("ignore", "(Possibly )?corrupt EXIF data", UserWarning)
@@ -81,12 +83,14 @@ class DefaultAD(data.Dataset):
 		img_path, mask_path, cls_name, specie_name, anomaly = data['img_path'], data['mask_path'], data['cls_name'], data['specie_name'], data['anomaly']
 		img_path = f'{self.root}/{img_path}'
 		img = self.loader(img_path)
+		img = Image.open(path).convert("RGB")
+    	img = to_dtype(to_image(img), torch.float32, scale=True)
 		if anomaly == 0:
 			img_mask = Image.fromarray(np.zeros((img.size[0], img.size[1])), mode='L')
 		else:
 			mask_path = f'{self.root}/{mask_path}'
 			img_mask = Image.open(mask_path).convert("L")
-			img_mask = np.array(img_mask)
+			img_mask = Mask(to_image(img_mask).squeeze() / 255, dtype=torch.uint8)
 			#img_mask = np.array(self.loader_target(f'{self.root}/{mask_path}')) > 0
 			#img_mask = Image.fromarray(img_mask.astype(np.uint8) * 255, mode='L')
 		img, img_mask = self.transform(img, img_mask) if self.transform is not None else img
