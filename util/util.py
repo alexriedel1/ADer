@@ -129,7 +129,7 @@ def get_logger(cfg, mode='a+'):
     fh = logging.FileHandler('{}/log_{}.txt'.format(cfg.logdir, cfg.mode), mode=mode)
     fh.setFormatter(logging.Formatter(log_format))
     logger = logging.getLogger()
-    logger.setLevel(logging.INO)
+    logger.setLevel(logging.INFO)
     logger.addHandler(fh)
     cfg.logger = logger
     return logger
