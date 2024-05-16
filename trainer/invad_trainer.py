@@ -196,7 +196,7 @@ class InvADTrainer(BaseTrainer):
 			results = dict(imgs_masks=imgs_masks, anomaly_maps=anomaly_maps, cls_names=cls_names, anomalys=anomalys, pred_scores=pred_scores)
 			torch.save(results, f'{self.tmp_dir}/{self.rank}.pth', _use_new_zipfile_serialization=False)
 			if self.master:
-				results = dict(imgs_masks=[], anomaly_maps=[], cls_names=[], anomalys=[])
+				results = dict(imgs_masks=[], anomaly_maps=[], cls_names=[], anomalys=[], pred_scores=[])
 				valid_results = False
 				while not valid_results:
 					results_files = glob.glob(f'{self.tmp_dir}/*.pth')
