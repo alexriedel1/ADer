@@ -15,7 +15,7 @@ class cfg(cfg_common, cfg_dataset_default, cfg_model_invad):
 
 		self.seed = 42
 		self.size = 256
-		self.epoch_full = 300
+		self.epoch_full = 100
 		self.warmup_epochs = 0
 		self.test_start_epoch = self.epoch_full
 		self.test_per_epoch = self.epoch_full // 10
@@ -25,12 +25,9 @@ class cfg(cfg_common, cfg_dataset_default, cfg_model_invad):
 		# self.lr = 1e-4 * self.batch_train / 8
 		self.weight_decay = 0.0001
 		self.metrics = [
-			'mAUROC_sp_max', 'mAP_sp_max', 'mF1_max_sp_max',
-			'mAUPRO_px',
-			'mAUROC_px', 'mAP_px', 'mF1_max_px',
-			'mF1_px_0.2_0.8_0.1', 'mAcc_px_0.2_0.8_0.1', 'mIoU_px_0.2_0.8_0.1',
-			'mIoU_max_px',
-			"F1_max_sp", "F1_max_px"
+                'mAUROC_sp_max', 'mAUROC_px'
+                'mF1_max_px'
+                "F1_max_sp", "F1_max_px"
 		]
 		self.uni_am = True
 		self.use_cos = True
