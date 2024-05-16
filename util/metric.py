@@ -40,7 +40,7 @@ class BinaryPrecisionRecallCurve(_BinaryPrecisionRecallCurve):
             preds = preds[idx]
             target = target[idx]
 
-        thresholds = _adjust_threshold_arg(thresholds, preds.device)
+        thresholds = _adjust_threshold_arg(thresholds)
         return preds, target, thresholds
 
     def update(self, preds: Tensor, target: Tensor) -> None:
@@ -224,12 +224,12 @@ class Evaluator(object):
                 metric_results[metric] = best_f1_score
 
             elif metric.startswith('F1_max_sp'):
-                self.image_f1_max.update(pr_sp.ravel(), gt_sp.ravel())
+                self.image_f1_max.update(torch.tensor(pr_sp), torch.tensor(gt_sp))
                 img_F1 = self.image_f1_max.compute()
                 metric_results[metric] = img_F1
 
             elif metric.startswith('F1_max_px'):
-                self.image_f1_max.update(pr_px.ravel(), gt_px.ravel())
+                self.image_f1_max.update(torch.tensor(pr_px), torch.tensor(gt_px))
                 px_F1 = self.image_f1_max.compute()
                 metric_results[metric] = px_F1
 
