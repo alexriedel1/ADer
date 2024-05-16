@@ -6,7 +6,7 @@ import torch
 
 def get_v2_transforms(mode):
   if mode=="train":
-    tranform = Compose(
+    transform = Compose(
       [
           Resize((256, 256), antialias=True),
           #CenterCrop(size=(224, 224)),
