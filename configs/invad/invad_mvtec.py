@@ -25,8 +25,8 @@ class cfg(cfg_common, cfg_dataset_default, cfg_model_invad):
 		# self.lr = 1e-4 * self.batch_train / 8
 		self.weight_decay = 0.0001
 		self.metrics = [
-                'mAUROC_sp_max', 'mAUROC_px'
-                'mF1_max_px'
+                'mAUROC_sp_max', 'mAUROC_px',
+                'mF1_max_px',
                 "F1_max_sp", "F1_max_px"
 		]
 		self.uni_am = True
