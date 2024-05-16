@@ -30,6 +30,7 @@ class cfg(cfg_common, cfg_dataset_default, cfg_model_invad):
 			'mAUROC_px', 'mAP_px', 'mF1_max_px',
 			'mF1_px_0.2_0.8_0.1', 'mAcc_px_0.2_0.8_0.1', 'mIoU_px_0.2_0.8_0.1',
 			'mIoU_max_px',
+			"F1_max_sp", "F1_max_px"
 		]
 		self.uni_am = True
 		self.use_cos = True
