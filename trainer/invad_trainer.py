@@ -157,7 +157,7 @@ class InvADTrainer(BaseTrainer):
 				shutil.rmtree(self.tmp_dir)
 			os.makedirs(self.tmp_dir, exist_ok=True)
 		self.reset(isTrain=False)
-		imgs_masks, anomaly_maps, cls_names, anomalys = [], [], [], []
+		imgs_masks, anomaly_maps, cls_names, anomalys, pred_scores = [], [], [], [], []
 		batch_idx = 0
 		test_length = self.cfg.data.test_size
 		test_loader = iter(self.test_loader)
@@ -173,6 +173,8 @@ class InvADTrainer(BaseTrainer):
 			update_log_term(self.log_terms.get('pixel'), reduce_tensor(loss_mse, self.world_size).clone().detach().item(), 1, self.master)
 			# get anomaly maps
 			anomaly_map, _ = self.evaluator.cal_anomaly_map(self.feats, self.feats_pred, [self.imgs.shape[2], self.imgs.shape[3]], uni_am=self.cfg.uni_am, use_cos=self.cfg.use_cos, amap_mode='add', gaussian_sigma=4)
+			pred_score = anomaly_map.reshape(-1).max()
+			
 			# anomaly_map, _ = self.evaluator.cal_anomaly_map([self.feats[2]], [self.feats_pred[2]], [self.imgs.shape[2], self.imgs.shape[3]], uni_am=self.cfg.uni_am, use_cos=self.cfg.use_cos, amap_mode='add', gaussian_sigma=4)
 			# anomaly_map = self.pred.cpu().numpy()
 			self.imgs_mask[self.imgs_mask > 0.5], self.imgs_mask[self.imgs_mask <= 0.5] = 1, 0
@@ -180,6 +182,7 @@ class InvADTrainer(BaseTrainer):
 			anomaly_maps.append(anomaly_map)
 			cls_names.append(np.array(self.cls_name))
 			anomalys.append(self.anomaly.cpu().numpy().astype(int))
+			pred_scores.append(pred_score)
 			t2 = get_timepc()
 			update_log_term(self.log_terms.get('batch_t'), t2 - t1, 1, self.master)
 			print(f'\r{batch_idx}/{test_length}', end='') if self.master else None
@@ -190,7 +193,7 @@ class InvADTrainer(BaseTrainer):
 					log_msg(self.logger, msg)
 		# merge results
 		if self.cfg.dist:
-			results = dict(imgs_masks=imgs_masks, anomaly_maps=anomaly_maps, cls_names=cls_names, anomalys=anomalys)
+			results = dict(imgs_masks=imgs_masks, anomaly_maps=anomaly_maps, cls_names=cls_names, anomalys=anomalys, pred_scores=pred_scores)
 			torch.save(results, f'{self.tmp_dir}/{self.rank}.pth', _use_new_zipfile_serialization=False)
 			if self.master:
 				results = dict(imgs_masks=[], anomaly_maps=[], cls_names=[], anomalys=[])
@@ -212,7 +215,7 @@ class InvADTrainer(BaseTrainer):
 								time.sleep(1)
 						valid_results = True
 		else:
-			results = dict(imgs_masks=imgs_masks, anomaly_maps=anomaly_maps, cls_names=cls_names, anomalys=anomalys)
+			results = dict(imgs_masks=imgs_masks, anomaly_maps=anomaly_maps, cls_names=cls_names, anomalys=anomalys, pred_scores=pred_scores)
 		if self.master:
 			results = {k: np.concatenate(v, axis=0) for k, v in results.items()}
 			msg = {}

@@ -27,7 +27,7 @@ class cfg(cfg_common, cfg_dataset_default, cfg_model_invad):
 		self.metrics = [
                 'mAUROC_sp_max', 'mAUROC_px',
                 'mF1_max_px',
-                "F1_max_sp", "F1_max_px"
+                "F1_max_sp", "F1_max_px", "F1_max_sp_predscores"
 		]
 		self.uni_am = True
 		self.use_cos = True

@@ -139,6 +139,7 @@ class Evaluator(object):
         gt_px = results['imgs_masks'][idxes]
         pr_px = results['anomaly_maps'][idxes]
         pr_sp = results['anomalys'][idxes]
+        pred_scores = results['pred_scores'][idxes]
         if 'smp_pre' in results:
             pr_sample = results['smp_pre'][idxes]
             subarrays = np.split(pr_sample, len(pr_sample)//5)
@@ -225,6 +226,11 @@ class Evaluator(object):
 
             elif metric.startswith('F1_max_sp'):
                 self.image_f1_max.update(torch.tensor(pr_sp), torch.tensor(gt_sp))
+                img_F1 = self.image_f1_max.compute()
+                metric_results[metric] = img_F1
+
+            elif metric.startswith('F1_max_sp_predscores'):
+                self.image_f1_max.update(torch.tensor(pred_scores), torch.tensor(gt_sp))
                 img_F1 = self.image_f1_max.compute()
                 metric_results[metric] = img_F1
 
