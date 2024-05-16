@@ -36,34 +36,34 @@ def get_v2_transforms(mode):
       ],
   )
   if mode == "test":
-	transform = Compose(
-      [
-          Resize((256, 256), antialias=True),
-          #CenterCrop(size=(224, 224)),
-          RandomApply(torch.nn.ModuleList([
-              RandomChoice([
-                  GaussianBlur(kernel_size = 5),
-                  GaussianBlur(kernel_size = 7),
-                  GaussianBlur(kernel_size = 9),
-              ])
-            ]), p=0.5),
-          #RandomPosterize( bits=3, p=0.5),
-          RandomPhotometricDistort(p=0.3),
-          RandomApply(torch.nn.ModuleList([
-            ColorJitter(brightness=1.0,
-                        contrast = 0.5,
-                        saturation = 0.5,
-                        hue=0.3
-                        )
-            ]), p=0.5),
-          #RandomEqualize(p=0.3),
-          RandomAutocontrast(p=0.3),
-          RandomHorizontalFlip(p=0.5),
-          RandomAffine(degrees=45, translate=(0.4, 0.4), scale=(0.7, 1.1)),
-          RandomVerticalFlip(p=0.5),
-          Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-      ]
-  )
+    transform = Compose(
+        [
+            Resize((256, 256), antialias=True),
+            #CenterCrop(size=(224, 224)),
+            RandomApply(torch.nn.ModuleList([
+                RandomChoice([
+                    GaussianBlur(kernel_size = 5),
+                    GaussianBlur(kernel_size = 7),
+                    GaussianBlur(kernel_size = 9),
+                ])
+              ]), p=0.5),
+            #RandomPosterize( bits=3, p=0.5),
+            RandomPhotometricDistort(p=0.3),
+            RandomApply(torch.nn.ModuleList([
+              ColorJitter(brightness=1.0,
+                          contrast = 0.5,
+                          saturation = 0.5,
+                          hue=0.3
+                          )
+              ]), p=0.5),
+            #RandomEqualize(p=0.3),
+            RandomAutocontrast(p=0.3),
+            RandomHorizontalFlip(p=0.5),
+            RandomAffine(degrees=45, translate=(0.4, 0.4), scale=(0.7, 1.1)),
+            RandomVerticalFlip(p=0.5),
+            Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+    )
   return transform
 
 
