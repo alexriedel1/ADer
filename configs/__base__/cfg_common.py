@@ -55,7 +55,7 @@ class cfg_common(Namespace):
 		self.trainer.data.batch_size_per_gpu = None
 		self.trainer.data.batch_size_test = None
 		self.trainer.data.batch_size_per_gpu_test = 16
-		self.trainer.data.num_workers_per_gpu = 4
+		self.trainer.data.num_workers_per_gpu = 0
 		self.trainer.data.drop_last = True
 		self.trainer.data.pin_memory = True
 		self.trainer.data.persistent_workers = False
