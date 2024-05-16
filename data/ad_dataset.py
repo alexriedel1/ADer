@@ -85,8 +85,8 @@ class DefaultAD(data.Dataset):
 		else:
 			img_mask = np.array(self.loader_target(f'{self.root}/{mask_path}')) > 0
 			img_mask = Image.fromarray(img_mask.astype(np.uint8) * 255, mode='L')
-		img = self.transform(img) if self.transform is not None else img
-		img_mask = self.target_transform(img_mask) if self.target_transform is not None and img_mask is not None else img_mask
+		img, img_mask = self.transform(img, img_mask) if self.transform is not None else img
+		#img_mask = self.target_transform(img_mask) if self.target_transform is not None and img_mask is not None else img_mask
 		img_mask = [] if img_mask is None else img_mask
 		return {'img': img, 'img_mask': img_mask, 'cls_name': cls_name, 'anomaly': anomaly, 'img_path': img_path}
 

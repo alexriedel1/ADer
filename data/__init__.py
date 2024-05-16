@@ -13,15 +13,19 @@ files = glob.glob('data/[!_]*.py')
 for file in files:
 	model_lib = importlib.import_module(file.split('.')[0].replace('/', '.'))
 
-from data.utils import get_transforms
+from data.utils import get_transforms, get_v2_transforms
 
 
 def get_dataset(cfg):
-	train_transforms = get_transforms(cfg, train=True, cfg_transforms=cfg.data.train_transforms)
-	test_transforms = get_transforms(cfg, train=False, cfg_transforms=cfg.data.test_transforms)
-	target_transforms = get_transforms(cfg, train=False, cfg_transforms=cfg.data.target_transforms)
-	train_set = DATA.get_module(cfg.data.type)(cfg, train=True, transform=train_transforms, target_transform=target_transforms)
-	test_set = DATA.get_module(cfg.data.type)(cfg, train=False, transform=test_transforms, target_transform=target_transforms)
+	#train_transforms = get_transforms(cfg, train=True, cfg_transforms=cfg.data.train_transforms)
+	#test_transforms = get_transforms(cfg, train=False, cfg_transforms=cfg.data.test_transforms)
+	#target_transforms = get_transforms(cfg, train=False, cfg_transforms=cfg.data.target_transforms)
+
+	train_transforms = get_v2_transforms(mode="train")
+	test_transforms = get_v2_transforms(mode="test")
+	train_set = DATA.get_module(cfg.data.type)(cfg, train=True, transform=train_transforms)
+	test_set = DATA.get_module(cfg.data.type)(cfg, train=False, transform=test_transforms)
+	
 	return train_set, test_set
 
 
