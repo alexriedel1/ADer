@@ -125,10 +125,11 @@ def log_cfg(cfg):
 
 def get_logger(cfg, mode='a+'):
     log_format = '%(asctime)s - %(message)s'
-    logging.basicConfig(level=logging.DEBUG, format=log_format, datefmt='%m/%d %I:%M:%S %p')
+    logging.basicConfig(level=logging.INFO, format=log_format, datefmt='%m/%d %I:%M:%S %p')
     fh = logging.FileHandler('{}/log_{}.txt'.format(cfg.logdir, cfg.mode), mode=mode)
     fh.setFormatter(logging.Formatter(log_format))
     logger = logging.getLogger()
+    logger.setLevel(logging.INO)
     logger.addHandler(fh)
     cfg.logger = logger
     return logger
