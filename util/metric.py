@@ -14,6 +14,87 @@ from util.registry import Registry
 EVALUATOR = Registry('Evaluator')
 
 
+from torch import Tensor
+from torchmetrics.classification import BinaryPrecisionRecallCurve as _BinaryPrecisionRecallCurve
+from torchmetrics.functional.classification.precision_recall_curve import (
+    _adjust_threshold_arg,
+    _binary_precision_recall_curve_update,
+)
+from torchmetrics import Metric
+
+class BinaryPrecisionRecallCurve(_BinaryPrecisionRecallCurve):
+    """Binary precision-recall curve with without threshold prediction normalization."""
+
+    @staticmethod
+    def _binary_precision_recall_curve_format(
+        preds: Tensor,
+        target: Tensor,
+        thresholds: int | list[float] | Tensor | None = None,
+        ignore_index: int | None = None,
+    ) -> tuple[Tensor, Tensor, Tensor | None]:
+        """Similar to torchmetrics' ``_binary_precision_recall_curve_format`` except it does not apply sigmoid."""
+        preds = preds.flatten()
+        target = target.flatten()
+        if ignore_index is not None:
+            idx = target != ignore_index
+            preds = preds[idx]
+            target = target[idx]
+
+        thresholds = _adjust_threshold_arg(thresholds, preds.device)
+        return preds, target, thresholds
+
+    def update(self, preds: Tensor, target: Tensor) -> None:
+        """Update metric state with new predictions and targets.
+
+        Unlike the base class, this accepts raw predictions and targets.
+
+        Args:
+            preds (Tensor): Predicted probabilities
+            target (Tensor): Ground truth labels
+        """
+        preds, target, _ = BinaryPrecisionRecallCurve._binary_precision_recall_curve_format(
+            preds,
+            target,
+            self.thresholds,
+            self.ignore_index,
+        )
+        state = _binary_precision_recall_curve_update(preds, target, self.thresholds)
+        if isinstance(state, Tensor):
+            self.confmat += state
+        else:
+            self.preds.append(state[0])
+            self.target.append(state[1])
+
+class F1Max(Metric):
+    full_state_update: bool = False
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+
+        self.precision_recall_curve = BinaryPrecisionRecallCurve()
+
+        self.threshold: torch.Tensor
+
+    def update(self, preds: torch.Tensor, target: torch.Tensor, *args, **kwargs) -> None:
+        """Update the precision-recall curve metric."""
+        del args, kwargs  # These variables are not used.
+
+        self.precision_recall_curve.update(preds, target)
+
+    def compute(self) -> torch.Tensor:
+        precision: torch.Tensor
+        recall: torch.Tensor
+        thresholds: torch.Tensor
+
+        precision, recall, thresholds = self.precision_recall_curve.compute()
+        f1_score = (2 * precision * recall) / (precision + recall + 1e-10)
+        self.threshold = thresholds[torch.argmax(f1_score)]
+        return torch.max(f1_score)
+
+    def reset(self) -> None:
+        """Reset the metric."""
+        self.precision_recall_curve.reset()
+
 def func(th, amaps, binary_amaps, masks):
     print('start', th)
     binary_amaps[amaps <= th], binary_amaps[amaps > th] = 0, 1
@@ -50,9 +131,12 @@ class Evaluator(object):
         self.eps = 1e-8
         self.beta = 1.0
 
+        self.image_f1_max = F1Max()
+        self.pixel_f1_max = F1Max()
+
     def run(self, results, cls_name, logger=None):
         idxes = results['cls_names'] == cls_name
-        gt_px = results['imgs_masks'][idxes].squeeze(1)
+        gt_px = results['imgs_masks'][idxes]
         pr_px = results['anomaly_maps'][idxes]
         pr_sp = results['anomalys'][idxes]
         if 'smp_pre' in results:
@@ -140,20 +224,15 @@ class Evaluator(object):
                 metric_results[metric] = best_f1_score
 
             elif metric.startswith('F1_max_sp'):
-                precisions, recalls, thresholds = precision_recall_curve(gt_sp.ravel(), pr_sp.ravel())
-                f1_scores = (2 * precisions * recalls) / (precisions + recalls)
-                best_f1_score = np.max(f1_scores[np.isfinite(f1_scores)])
-                best_f1_score_index = np.argmax(f1_scores[np.isfinite(f1_scores)])
-                best_threshold = thresholds[best_f1_score_index]
-                metric_results[metric] = best_f1_score
+                self.image_f1_max.update(pr_sp.ravel(), gt_sp.ravel())
+                img_F1 = self.image_f1_max.compute()
+                metric_results[metric] = img_F1
 
             elif metric.startswith('F1_max_px'):
-                precisions, recalls, thresholds = precision_recall_curve(gt_px.ravel(), pr_px.ravel())
-                f1_scores = (2 * precisions * recalls) / (precisions + recalls)
-                best_f1_score = np.max(f1_scores[np.isfinite(f1_scores)])
-                best_f1_score_index = np.argmax(f1_scores[np.isfinite(f1_scores)])
-                best_threshold = thresholds[best_f1_score_index]
-                metric_results[metric] = best_f1_score
+                self.image_f1_max.update(pr_px.ravel(), gt_px.ravel())
+                px_F1 = self.image_f1_max.compute()
+                metric_results[metric] = px_F1
+
             elif metric.startswith('mF1_px') or metric.startswith('mDice_px') or metric.startswith('mAcc_px') or metric.startswith('mIoU_px'):  # example: F1_sp_0.3_0.8
                 # F1_px equals Dice_px
                 coms = metric.split('_')
