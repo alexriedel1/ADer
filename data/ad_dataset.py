@@ -86,7 +86,7 @@ class DefaultAD(data.Dataset):
 		else:
 			mask_path = f'{self.root}/{mask_path}'
 			img_mask = Image.open(mask_path).convert("L")
-    		img_mask = np.array(img_mask)
+			img_mask = np.array(img_mask)
 			#img_mask = np.array(self.loader_target(f'{self.root}/{mask_path}')) > 0
 			#img_mask = Image.fromarray(img_mask.astype(np.uint8) * 255, mode='L')
 		img, img_mask = self.transform(img, img_mask) if self.transform is not None else img
