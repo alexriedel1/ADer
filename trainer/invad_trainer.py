@@ -173,7 +173,7 @@ class InvADTrainer(BaseTrainer):
 			update_log_term(self.log_terms.get('pixel'), reduce_tensor(loss_mse, self.world_size).clone().detach().item(), 1, self.master)
 			# get anomaly maps
 			anomaly_map, _ = self.evaluator.cal_anomaly_map(self.feats, self.feats_pred, [self.imgs.shape[2], self.imgs.shape[3]], uni_am=self.cfg.uni_am, use_cos=self.cfg.use_cos, amap_mode='add', gaussian_sigma=4)
-			pred_score = anomaly_map.reshape(-1).max()
+			pred_score = anomaly_map.max(axis=(1, 2))
 			
 			# anomaly_map, _ = self.evaluator.cal_anomaly_map([self.feats[2]], [self.feats_pred[2]], [self.imgs.shape[2], self.imgs.shape[3]], uni_am=self.cfg.uni_am, use_cos=self.cfg.use_cos, amap_mode='add', gaussian_sigma=4)
 			# anomaly_map = self.pred.cpu().numpy()
