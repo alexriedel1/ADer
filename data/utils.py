@@ -5,7 +5,7 @@ from torchvision.transforms.v2 import Compose, Transform, RandomAutocontrast, Ra
 
 
 def get_v2_transforms(mode):
-	if mode="train":
+	if mode=="train":
 		tranform = Compose(
       [
           Resize((256, 256), antialias=True),

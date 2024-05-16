@@ -3,7 +3,6 @@ import torch
 import torch.nn as nn
 import cv2
 from PIL import Image
-import accimage
 import torchvision
 import torchvision.transforms as transforms
 from skimage import color
