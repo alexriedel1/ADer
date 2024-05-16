@@ -86,7 +86,7 @@ class DefaultAD(data.Dataset):
 		img = Image.open(img_path).convert("RGB")
 		img = to_dtype(to_image(img), torch.float32, scale=True)
 		if anomaly == 0:
-			img_mask = Mask(torch.zeros(image.shape[-2:])).to(torch.uint8)
+			img_mask = Mask(torch.zeros(img.shape[-2:])).to(torch.uint8)
 		else:
 			mask_path = f'{self.root}/{mask_path}'
 			img_mask = Image.open(mask_path).convert("L")
