@@ -36,7 +36,7 @@ class cfg(cfg_common, cfg_dataset_default, cfg_model_invad):
 		self.data.type = 'DefaultAD'
 		self.data.root = 'data/mvtec'
 		self.data.meta = 'meta.json'
-		self.data.cls_names = ["bottle"]
+		self.data.cls_names = []
 
 		self.data.train_transforms = [
 			dict(type='Resize', size=(self.size, self.size), interpolation=F.InterpolationMode.BILINEAR),
