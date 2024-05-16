@@ -2,11 +2,11 @@ from torchvision import transforms
 import numpy as np
 from . import TRANSFORMS
 from torchvision.transforms.v2 import Compose, Transform, RandomAutocontrast, RandomAffine, CenterCrop, RandomEqualize,RandomPhotometricDistort, RandomChoice, RandomAdjustSharpness, RandomHorizontalFlip, Resize, RandomVerticalFlip, ColorJitter, RandomApply, GaussianBlur, RandomPosterize, Normalize
-
+import torch
 
 def get_v2_transforms(mode):
-	if mode=="train":
-		tranform = Compose(
+  if mode=="train":
+    tranform = Compose(
       [
           Resize((256, 256), antialias=True),
           #CenterCrop(size=(224, 224)),
