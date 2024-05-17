@@ -131,10 +131,11 @@ class Evaluator(object):
         self.eps = 1e-8
         self.beta = 1.0
 
+    def run(self, results, cls_name, logger=None):
         self.image_f1_max = F1Max()
+        self.image_f1_max_pred = F1Max()
         self.pixel_f1_max = F1Max()
 
-    def run(self, results, cls_name, logger=None):
         idxes = results['cls_names'] == cls_name
         gt_px = results['imgs_masks'][idxes]
         pr_px = results['anomaly_maps'][idxes]
@@ -228,16 +229,19 @@ class Evaluator(object):
                 self.image_f1_max.update(torch.tensor(pr_sp), torch.tensor(gt_sp))
                 img_F1 = self.image_f1_max.compute()
                 metric_results[metric] = img_F1
+                self.image_f1_max.reset()
 
             elif metric.startswith('F1_max_sp_predscores'):
-                self.image_f1_max.update(torch.tensor(pred_scores), torch.tensor(gt_sp))
-                img_F1 = self.image_f1_max.compute()
+                self.image_f1_max_pred.update(torch.tensor(pred_scores), torch.tensor(gt_sp))
+                img_F1 = self.image_f1_max_pred.compute()
                 metric_results[metric] = img_F1
+                self.image_f1_max_pred.reset()
 
             elif metric.startswith('F1_max_px'):
-                self.image_f1_max.update(torch.tensor(pr_px), torch.tensor(gt_px))
-                px_F1 = self.image_f1_max.compute()
+                self.pixel_f1_max.update(torch.tensor(pr_px), torch.tensor(gt_px))
+                px_F1 = self.pixel_f1_max.compute()
                 metric_results[metric] = px_F1
+                self.pixel_f1_max.reset()
 
             elif metric.startswith('mF1_px') or metric.startswith('mDice_px') or metric.startswith('mAcc_px') or metric.startswith('mIoU_px'):  # example: F1_sp_0.3_0.8
                 # F1_px equals Dice_px
