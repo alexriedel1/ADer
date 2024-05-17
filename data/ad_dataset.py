@@ -18,7 +18,7 @@ import cv2
 import math
 from torchvision.tv_tensors import Mask
 from torchvision.transforms.v2.functional import to_dtype, to_image
-
+from util.util import log_msg
 
 import warnings
 warnings.filterwarnings("ignore", "(Possibly )?corrupt EXIF data", UserWarning)
@@ -48,6 +48,8 @@ class DefaultAD(data.Dataset):
 		self.root = cfg.data.root
 		self.train = train
 		self.transform = transform
+		log_msg("TRANSFORMS USED")
+		log_msg(self.transform)
 		self.target_transform = target_transform
 
 		self.loader = get_img_loader(cfg.data.loader_type)
