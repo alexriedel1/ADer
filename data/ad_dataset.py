@@ -48,8 +48,9 @@ class DefaultAD(data.Dataset):
 		self.root = cfg.data.root
 		self.train = train
 		self.transform = transform
-		log_msg("TRANSFORMS USED")
-		log_msg(self.transform)
+		self.logger = cfg.logger
+		log_msg(self.logger, "TRANSFORMS USED")
+		log_msg(self.logger, self.transform)
 		self.target_transform = target_transform
 
 		self.loader = get_img_loader(cfg.data.loader_type)
