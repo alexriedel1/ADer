@@ -33,8 +33,10 @@ from timm.utils import dispatch_clip_grad
 
 # @TRAINER.register_module
 class BaseTrainer():
-    def __init__(self, cfg):
+    def __init__(self, cfg, transform_train, transform_test):
         self.cfg = cfg
+        self.transform_train = transform_train
+        self.transform_test = transform_test
         self.master, self.logger, self.writer = cfg.master, cfg.logger, cfg.writer
         self.local_rank, self.rank, self.world_size = cfg.local_rank, cfg.rank, cfg.world_size
         log_msg(self.logger, '==> Running Trainer: {}'.format(cfg.trainer.name))
@@ -78,7 +80,7 @@ class BaseTrainer():
         cfg.logdir_train, cfg.logdir_test = f'{cfg.logdir}/show_train', f'{cfg.logdir}/show_test'
         makedirs([cfg.logdir_train, cfg.logdir_test], exist_ok=True)
         log_msg(self.logger, "==> Loading dataset: {}".format(cfg.data.type))
-        self.train_loader, self.test_loader = get_loader(cfg)
+        self.train_loader, self.test_loader = get_loader(cfg, self.transform_train, self.transform_test)
         cfg.data.train_size, cfg.data.test_size = len(self.train_loader), len(self.test_loader)
         cfg.data.train_length, cfg.data.test_length = self.train_loader.dataset.length, self.test_loader.dataset.length
         self.cls_names = self.train_loader.dataset.cls_names

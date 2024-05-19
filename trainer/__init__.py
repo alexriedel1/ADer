@@ -9,5 +9,5 @@ for file in files:
 	model_lib = importlib.import_module(file.split('.')[0].replace('/', '.'))
 
 
-def get_trainer(cfg):
-	return TRAINER.get_module(cfg.trainer.name)(cfg)
+def get_trainer(cfg, transform_train, transform_test):
+	return TRAINER.get_module(cfg.trainer.name)(cfg, transform_train, transform_test)

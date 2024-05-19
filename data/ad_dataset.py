@@ -49,6 +49,7 @@ class DefaultAD(data.Dataset):
 		self.train = train
 		self.transform = transform
 		self.logger = cfg.logger
+		log_msg(self.logger, "TRAIN" if train else "TEST")
 		log_msg(self.logger, "TRANSFORMS USED")
 		log_msg(self.logger, self.transform)
 		self.target_transform = target_transform

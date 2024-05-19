@@ -16,21 +16,21 @@ for file in files:
 from data.utils import get_transforms, get_v2_transforms
 
 
-def get_dataset(cfg):
+def get_dataset(cfg, transform_train, transform_test):
 	#train_transforms = get_transforms(cfg, train=True, cfg_transforms=cfg.data.train_transforms)
 	#test_transforms = get_transforms(cfg, train=False, cfg_transforms=cfg.data.test_transforms)
 	#target_transforms = get_transforms(cfg, train=False, cfg_transforms=cfg.data.target_transforms)
 
-	train_transforms = get_v2_transforms(mode="train")
-	test_transforms = get_v2_transforms(mode="test")
-	train_set = DATA.get_module(cfg.data.type)(cfg, train=True, transform=train_transforms)
-	test_set = DATA.get_module(cfg.data.type)(cfg, train=False, transform=test_transforms)
+	#train_transforms = get_v2_transforms(mode="train")
+	#test_transforms = get_v2_transforms(mode="test")
+	train_set = DATA.get_module(cfg.data.type)(cfg, train=True, transform=transform_train)
+	test_set = DATA.get_module(cfg.data.type)(cfg, train=False, transform=transform_test)
 	
 	return train_set, test_set
 
 
-def get_loader(cfg):
-	train_set, test_set = get_dataset(cfg)
+def get_loader(cfg, transform_train, transform_test):
+	train_set, test_set = get_dataset(cfg, transform_train, transform_test)
 	if cfg.dist:
 		if cfg.data.sampler == 'naive':
 			sampler = DistributedSampler
